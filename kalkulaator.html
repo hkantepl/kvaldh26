@@ -2,57 +2,52 @@
 <html lang="et">
 <head>
     <meta charset="UTF-8">
-    <title>Jooksu tempo kalkulaator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .kast {
-            border: 1px solid #ccc;
-            padding: 15px;
-            width: 300px;
-            background-color: #eef2f5;
-        }
-    </style>
+    <title>Kalkulaator - Spordipäev</title>
 </head>
-<body>
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 20px;">
 
-    
-    <p><a href="index.html">&larr; Tagasi pealehele</a> | <a href="sundmus.html">Sündmuse info</a></p>
+    <div style="max-width: 500px; margin: 30px auto; background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        
+        <a href="index.html" style="color: #2563eb; text-decoration: none; font-weight: bold;">&larr; Tagasi pealehele</a>
+        
+        <h1 style="color: #1e3a8a; margin-top: 15px;">⏱️ Kiiruse kalkulaator</h1>
+        <p style="color: #64748b;">Arvuta välja oma keskmine kiirus joostes!</p>
 
-    <hr>
+        #arvutuskasti disain
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 20px;">
+            
+            <label style="font-weight: bold; color: #334155; display: block; margin-bottom: 5px;">Läbitud vahemaa (km):</label>
+            <input type="number" id="distants" placeholder="nt 5" style="width: 95%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 15px; font-size: 16px;">
 
-    <h1>Spordipäeva kiiruse kalkulaator</h1>
-    <p>Arvuta välja, kui kiiresti sa spordipäeval jooksid!</p>
+            <label style="font-weight: bold; color: #334155; display: block; margin-bottom: 5px;">Aeg (minutites):</label>
+            <input type="number" id="aeg" placeholder="nt 25" style="width: 95%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-bottom: 20px; font-size: 16px;">
 
-    <div class="kast">
-        <label for="distants">Läbitud vahemaa (km):</label><br>
-        <input type="number" id="distants" placeholder="nt 5"><br><br>
+            <button onclick="arvutaKiirus()" style="width: 100%; background-color: #2563eb; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;">Arvuta tulemus</button>
 
-        <label for="aeg">Aeg (minutites):</label><br>
-        <input type="number" id="aeg" placeholder="nt 30"><br><br>
+            #tulemuse kuvamine
+            <div id="tulemus-kast" style="margin-top: 20px; padding: 15px; background-color: #e0f2fe; border-radius: 6px; text-align: center; display: none;">
+                <h3 id="tulemus" style="margin: 0; color: #0369a1;">-</h3>
+            </div>
 
-        <button onclick="arvutaKiirus()">Arvuta kiirus</button>
+        </div>
 
-        <h3 id="tulemus">Tulemus: -</h3>
     </div>
 
-    
+    #kalkulaator
     <script>
         function arvutaKiirus() {
-            // Võtame kastidest väärtused
             let km = document.getElementById('distants').value;
             let min = document.getElementById('aeg').value;
+            let tulemusKast = document.getElementById('tulemus-kast');
+            let tulemusTekst = document.getElementById('tulemus');
 
-            // Kontrollime, et vähemalt mõlemad arvud oleks täidetud
             if (km > 0 && min > 0) {
-                // Arvutame kiiruse: (km / minutid) * 60
                 let kiirus = (km / min) * 60;
-                // Kuvame tulemuse ümardatult 2 komakohani
-                document.getElementById('tulemus').innerText = "Keskmine kiirus: " + kiirus.toFixed(2) + " km/h";
+                tulemusTekst.innerText = "Sinu keskmine kiirus: " + kiirus.toFixed(2) + " km/h";
+                tulemusKast.style.display = "block";
             } else {
-                document.getElementById('tulemus').innerText = "Palun sisesta mõlemad numbrid!";
+                tulemusTekst.innerText = "Palun täida mõlemad väljad!";
+                tulemusKast.style.display = "block";
             }
         }
     </script>
