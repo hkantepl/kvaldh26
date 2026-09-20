@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <title>Jooksu tempo kalkulaator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .kast {
+            border: 1px solid #ccc;
+            padding: 15px;
+            width: 300px;
+            background-color: #eef2f5;
+        }
+    </style>
+</head>
+<body>
+
+    
+    <p><a href="index.html">&larr; Tagasi sisukorda (Avalehele)</a> | <a href="sundmus.html">Sündmuse info</a></p>
+
+    <hr>
+
+    <h1>Spordipäeva kiiruse kalkulaator</h1>
+    <p>Arvuta välja, kui kiiresti sa spordipäeval jooksid!</p>
+
+    <div class="kast">
+        <label for="distants">Läbitud vahemaa (km):</label><br>
+        <input type="number" id="distants" placeholder="nt 5"><br><br>
+
+        <label for="aeg">Aeg (minutites):</label><br>
+        <input type="number" id="aeg" placeholder="nt 30"><br><br>
+
+        <button onclick="arvutaKiirus()">Arvuta kiirus</button>
+
+        <h3 id="tulemus">Tulemus: -</h3>
+    </div>
+
+    
+    <script>
+        function arvutaKiirus() {
+            // Võtame kastidest väärtused
+            let km = document.getElementById('distants').value;
+            let min = document.getElementById('aeg').value;
+
+            // Kontrollime, et vähemalt mõlemad arvud oleks täidetud
+            if (km > 0 && min > 0) {
+                // Arvutame kiiruse: (km / minutid) * 60
+                let kiirus = (km / min) * 60;
+                // Kuvame tulemuse ümardatult 2 komakohani
+                document.getElementById('tulemus').innerText = "Keskmine kiirus: " + kiirus.toFixed(2) + " km/h";
+            } else {
+                document.getElementById('tulemus').innerText = "Palun sisesta mõlemad numbrid!";
+            }
+        }
+    </script>
+
+</body>
+</html>
