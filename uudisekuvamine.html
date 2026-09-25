@@ -9,11 +9,15 @@
       function kuva(tekst){
         console.log(tekst);
         v1.innerText=tekst;
+        p1.innerText=tekst[0];
+        s1.innerText=tekst[1];
       }
     </script>
   </head>
   <body>Teade: <span id="v1">teate koht</span>
     <input type="button" value="Kuva teade" onclick="loe()"/>
+    <h1 id= "p1">Pealkirja koht</h1>
+    <div id="s1">Sisu koht</div>
 
   </body>
 </html>
