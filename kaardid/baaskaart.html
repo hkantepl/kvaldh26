@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
  <head>
@@ -18,16 +19,16 @@
 	  attribution: "Map: <a  href='http://www.maaamet.ee/'>Maa-amet</a>",
 	  tms: true,
     }).addTo(kaart);
-      fetch("https://script.google.com/macros/s/AKfycbzZgA43pTYdbMHxIegoQe74CLCqGBqJUsQn9XD71w1NSmHd13Ogwjfx83aJiW6dzmZd/exec"
-            ).then(d => d.json()).then(kuva);
+	  fetch("https://script.google.com/macros/s/AKfycbzZgA43pTYdbMHxIegoQe74CLCqGBqJUsQn9XD71w1NSmHd13Ogwjfx83aJiW6dzmZd/exec"
+		    ).then(d => d.json()).then(kuva);
 	   console.log("tellitud");
-   }
-
-   function kuva(kohad){
-	   console.log(kohad);
-     for(let koht of kohad){
-     L.marker([koht[0], koht[1]]).addTo(kaart);
-   }
+  }
+  function kuva(kohad){
+	console.log(kohad);
+	for(let koht of kohad){
+	  L.marker([koht[0], koht[1]]).addTo(kaart);
+	}
+  }
 
   </script>
  </head>  
