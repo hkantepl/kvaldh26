@@ -20,6 +20,7 @@
     }).addTo(kaart);
       fetch("https://script.google.com/macros/s/AKfycbzZgA43pTYdbMHxIegoQe74CLCqGBqJUsQn9XD71w1NSmHd13Ogwjfx83aJiW6dzmZd/exec"
             ).then(d => d.json()).then(kuva);
+	   console.log("tellitud");
    }
 
    function kuva(kohad){
