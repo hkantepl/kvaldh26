@@ -1,23 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="et">
 <head>
-  <title>Temaatiline Kaart</title>
+  <meta charset="UTF-8">
+  <title>Jalutuskäik Tallinnas koos kohalikuga</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
   <style>
-    body { padding: 0; margin: 0; }
-    html, body { height: 100%; width: 100%; }
-    img { border: 0; }
-    #kaardikiht { float: bottom; width: 100%; height: 100%; }
+    * { box-sizing: border-box; }
+    body, html { margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; }
+    
+    /* Ekraani jagamine kaheks */
+    #konteiner {
+      display: flex;
+      height: 100vh;
+      flex-direction: row;
+    }
+    
+    /* Vasak paneel ehk pealehe info */
+    #sidebar {
+      width: 350px;
+      padding: 20px;
+      overflow-y: auto;
+      background-color: #f8f9fa;
+      border-right: 2px solid #ccc;
+    }
+    
+    /* Paremal asuv kaart */
+    #kaardikiht {
+      flex: 1;
+      height: 100%;
+    }
+
+    h1 { font-size: 20px; color: #2c3e50; margin-top: 0; }
+    p { font-size: 14px; color: #555; line-height: 1.5; }
+
+    /* Punktide nimekiri */
+    .punkt-kaart {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .punkt-kaart:hover {
+      background: #eef5ff;
+      border-color: #007bff;
+    }
+    .punkt-kaart h3 { margin: 0 0 5px 0; font-size: 15px; color: #007bff; }
+    .punkt-kaart p { margin: 0; font-size: 13px; color: #666; }
+
+    /* Mobiilis kuvame ülemise ja alumise osana */
+    @media (max-width: 768px) {
+      #konteiner { flex-direction: column; }
+      #sidebar { width: 100%; height: 40vh; }
+      #kaardikiht { height: 60vh; }
+    }
   </style>
+</head>
+<body onload="algus()">
+
+  <div id="konteiner">
+    <!-- INFO PANEEL (PEALEHT) -->
+    <div id="sidebar">
+      <h1>🚶‍♂️ Jalutuskäik Tallinnas koos kohalikuga</h1>
+      <p>Tule ja avasta Tallinna vanalinna peidetud pärleid! Allpool on toodud meie marsruut ja peatused. Vajuta punktile, et näha seda kaardil.</p>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+      
+      <h2>Marsruudi punktid</h2>
+      <div id="punktide-nimekiri">
+        <!-- Punktid laetakse siia automaatselt JavaScriptiga -->
+      </div>
+    </div>
+
+    <!-- KAART -->
+    <div id="kaardikiht"></div>
+  </div>
+
   <script>
     var kaart;
+    var markerid = {}; // Salvestame markerid, et nimekirjast klikkides neid avada
 
     function algus() {
       // 1. Kaardi algseadistus
-      kaart = L.map('kaardikiht').setView([59.437, 24.753], 13);
+      kaart = L.map('kaardikiht').setView([59.437, 24.745], 14);
 
-      // 2. Maa-ameti aluskaart (Sinu olemasolev kiht)
+      // 2. Maa-ameti kaardikiht
       new L.TileLayer(
         'https://tiles.maaamet.ee/tm/tms/1.0.0/hybriid@GMC/{z}/{x}/{y}.png&ASUTUS=TLU&ERIALA=DIGIHUMANITAARIA', {
           attribution: "Map: <a href='http://www.maaamet.ee/'>Maa-amet</a>",
@@ -25,22 +94,40 @@
         }
       ).addTo(kaart);
 
-      // 3. Andmete laadimine JSON-failist serveris
+      // 3. Andmete laadimine JSON failist
       fetch('andmed.json')
         .then(response => response.json())
         .then(data => {
-          // Käime kõik koordinaadid läbi ja lisame kaardile markerid
+          var nimekirjaKonteiner = document.getElementById('punktide-nimekiri');
+
           data.forEach(koht => {
-            L.marker([koht.lat, koht.lng])
+            // A. Lisame markeri kaardile
+            var marker = L.marker([koht.lat, koht.lng])
               .addTo(kaart)
               .bindPopup(`<b>${koht.nimi}</b><br>${koht.kirjeldus}`);
+            
+            // Salvestame markeri ID järgi
+            markerid[koht.id] = marker;
+
+            // B. Lisame punkti vasakusse menüüsse
+            var kaardike = document.createElement('div');
+            kaardike.className = 'punkt-kaart';
+            kaardike.innerHTML = `
+              <h3>${koht.nimi}</h3>
+              <p>${koht.kirjeldus}</p>
+            `;
+
+            // Kui nimekirjas punktile klikitakse, liigub kaart sinna
+            kaardike.onclick = function() {
+              kaart.setView([koht.lat, koht.lng], 16);
+              marker.openPopup();
+            };
+
+            nimekirjaKonteiner.appendChild(kaardike);
           });
         })
         .catch(error => console.error('Viga andmete laadimisel:', error));
     }
   </script>
-</head>
-<body onload="algus()">
-  <div id="kaardikiht"></div>
 </body>
 </html>
