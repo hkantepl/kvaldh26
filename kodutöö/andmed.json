@@ -1,0 +1,20 @@
+[
+  {
+    "nimi": "Tallinna Lauluväljak",
+    "kirjeldus": "Laulupeod ja kontserdid",
+    "lat": 59.4447,
+    "lng": 24.8061
+  },
+  {
+    "nimi": "Kadrioru Park",
+    "kirjeldus": "Ajalooline park ja loss",
+    "lat": 59.4385,
+    "lng": 24.7915
+  },
+  {
+    "nimi": "Raekoja plats",
+    "kirjeldus": "Tallinna vanalinna süda",
+    "lat": 59.4372,
+    "lng": 24.7453
+  }
+]
