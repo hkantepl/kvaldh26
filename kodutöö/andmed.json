@@ -1,20 +1,30 @@
 [
   {
-    "nimi": "Tallinna Lauluväljak",
-    "kirjeldus": "Laulupeod ja kontserdid",
-    "lat": 59.4447,
-    "lng": 24.8061
+    "id": 1,
+    "nimi": "1. Kogunemine: Viru väravad",
+    "kirjeldus": "Saame kokku vanalinna sissepääsu juures kell 14:00.",
+    "lat": 59.4365,
+    "lng": 24.7507
   },
   {
-    "nimi": "Kadrioru Park",
-    "kirjeldus": "Ajalooline park ja loss",
-    "lat": 59.4385,
-    "lng": 24.7915
+    "id": 2,
+    "nimi": "2. Kohvipaus: Saiakangi kohvik",
+    "kirjeldus": "Joome kuuma jooki ja räägime vanalinna legendidest.",
+    "lat": 59.4373,
+    "lng": 24.7458
   },
   {
-    "nimi": "Raekoja plats",
-    "kirjeldus": "Tallinna vanalinna süda",
-    "lat": 59.4372,
-    "lng": 24.7453
+    "id": 3,
+    "nimi": "3. Vaateplatvorm: Kohtuotsa",
+    "kirjeldus": "Naudime panoraamvaadet kogu linnale ja teeme ühispildi.",
+    "lat": 59.4370,
+    "lng": 24.7410
+  },
+  {
+    "id": 4,
+    "nimi": "4. Lõpppunkt: Snelli park",
+    "kirjeldus": "Jalutuskäigu lõpp tiigi ääres.",
+    "lat": 59.4382,
+    "lng": 24.7375
   }
 ]
