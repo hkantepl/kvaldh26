@@ -1,28 +1,46 @@
 <!DOCTYPE html>
 <html>
- <head>
- <title>Kaart</title>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
- <style>
-   body {padding: 0; margin: 0; }
-   html, body { height: 100%; width: 100%;}
-   img { border: 0;}
-   #kaardikiht {float:bottom; width:100%; height:100%;}
- </style>
- <script>
-   var kaart;
-   function algus(){
-    kaart = L.map('kaardikiht').setView([59.43, 24.75], 13);
-    new L.TileLayer(
-  'https://tiles.maaamet.ee/tm/tms/1.0.0/hybriid@GMC/{z}/{x}/{y}.png&ASUTUS=TLU&ERIALA=DIGIHUMANITAARIA', {
-	attribution: "Map: <a  href='http://www.maaamet.ee/'>Maa-amet</a>",
-	tms: true,
-   }).addTo(kaart);
-   }
+<head>
+  <title>Temaatiline Kaart</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+  <style>
+    body { padding: 0; margin: 0; }
+    html, body { height: 100%; width: 100%; }
+    img { border: 0; }
+    #kaardikiht { float: bottom; width: 100%; height: 100%; }
+  </style>
+  <script>
+    var kaart;
+
+    function algus() {
+      // 1. Kaardi algseadistus
+      kaart = L.map('kaardikiht').setView([59.437, 24.753], 13);
+
+      // 2. Maa-ameti aluskaart (Sinu olemasolev kiht)
+      new L.TileLayer(
+        'https://tiles.maaamet.ee/tm/tms/1.0.0/hybriid@GMC/{z}/{x}/{y}.png&ASUTUS=TLU&ERIALA=DIGIHUMANITAARIA', {
+          attribution: "Map: <a href='http://www.maaamet.ee/'>Maa-amet</a>",
+          tms: true
+        }
+      ).addTo(kaart);
+
+      // 3. Andmete laadimine JSON-failist serveris
+      fetch('andmed.json')
+        .then(response => response.json())
+        .then(data => {
+          // Käime kõik koordinaadid läbi ja lisame kaardile markerid
+          data.forEach(koht => {
+            L.marker([koht.lat, koht.lng])
+              .addTo(kaart)
+              .bindPopup(`<b>${koht.nimi}</b><br>${koht.kirjeldus}`);
+          });
+        })
+        .catch(error => console.error('Viga andmete laadimisel:', error));
+    }
   </script>
- </head>  
- <body onload="algus()">
+</head>
+<body onload="algus()">
   <div id="kaardikiht"></div>
- </body>
+</body>
 </html>
