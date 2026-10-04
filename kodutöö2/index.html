@@ -2,8 +2,9 @@
 <html lang="et">
 <head>
   <meta charset="UTF-8">
-  <title>Google Sheets Kaart</title>
+  <title>Kaardirakendus - Otse Sheetsi salvestamine</title>
   
+  <!-- Leaflet (Kaart) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
 
@@ -12,11 +13,53 @@
 
   <style>
     body { margin: 0; font-family: Arial, sans-serif; display: flex; height: 100vh; }
-    #sidebar { width: 320px; padding: 15px; background: #f4f4f4; overflow-y: auto; box-sizing: border-box; }
+    #sidebar { width: 340px; padding: 15px; background: #f4f4f4; overflow-y: auto; box-sizing: border-box; }
     #kaart { flex: 1; height: 100%; }
-    .punkt-kaart { background: white; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    
+    .punkt-kaart { 
+      background: white; 
+      padding: 10px; 
+      margin-bottom: 10px; 
+      border-radius: 5px; 
+      border: 1px solid #ccc; 
+      cursor: pointer; 
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .punkt-kaart:hover {
+      background: #eef5ff;
+      border-color: #007bff;
+    }
+    
     .kaugus { color: #e67e22; font-weight: bold; font-size: 13px; }
-    .nupp { display: block; text-align: center; background: #28a745; color: white; padding: 10px; text-decoration: none; border-radius: 5px; margin-bottom: 15px; font-weight: bold; }
+    
+    .juhend {
+      background: #eef5ff;
+      border-left: 4px solid #007bff;
+      padding: 10px;
+      margin-bottom: 15px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* Popup vormi stiilid */
+    .form-popup input, .form-popup textarea {
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 6px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .form-popup button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -24,10 +67,11 @@
   <div id="sidebar">
     <h2>Kaardirakendus</h2>
     
-    
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSfcCPUxEEguCzRSUvUKpva_Ft07tGlyLwrKH8K6mVowyi8zJg/viewform?usp=header" class="nupp">Uue asukoha lisamine</a>
+    <div class="juhend">
+      💡 <b>Uue koha lisamine:</b> Klõpsa kaardil mistahes kohas, et salvestada uus koht.
+    </div>
 
-    <p><i>Asukohtade loend</i></p>
+    <h3>Salvestatud kohad</h3>
     <hr>
     <div id="punktid">Laen andmeid Google Sheetsist...</div>
   </div>
@@ -35,8 +79,18 @@
   <div id="kaart"></div>
 
   <script>
-    
+    // 1. PANE SIIA OMA GOOGLE SHEETSI AVALDATUD CSV LINK
     var GOOGLE_SHEETS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSXsqjzXSdoV7sGkuBAPt2exqCMvin_6ciNAplHPUnD6SFze2pao6ZL-h6fialROeL0fA4KkuMEOnTN/pub?output=csv';
+
+    // 2. GOOGLE FORMSI SALVESTAMISE SEADISTUS
+    // NB! Link peab lõppema /formResponse (mitte /viewform)
+    var FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfcCPUxEEguCzRSUvUKpva_Ft07tGlyLwrKH8K6mVowyi8zJg/formResponse';
+    
+    // Asenda need oma Formsi õigete entry.XXXXXXXX ID-dega
+    var ENTRY_NIMI = 'entry.228036019';
+    var ENTRY_KIRJELDUS = 'entry.639091632';
+    var ENTRY_LAT = 'entry.603387186';
+    var ENTRY_LNG = 'entry.1635669608';
 
     var kaart = L.map('kaart').setView([59.437, 24.745], 13);
 
@@ -46,22 +100,30 @@
     }).addTo(kaart);
 
     var kohad = [];
-    var markerid = []; // Hoolitseb markerite salvestamise eest
+    var markerid = [];
     var minutMarker = null;
 
-    Papa.parse(GOOGLE_SHEETS_CSV, {
-      download: true,
-      header: true,
-      complete: function(results) {
-        kohad = results.data;
-        kuvaKohad();
-      }
-    });
+    // Laeme andmed Google Sheetsist
+    laeAndmed();
+
+    function laeAndmed() {
+      Papa.parse(GOOGLE_SHEETS_CSV + '&t=' + new Date().getTime(), {
+        download: true,
+        header: true,
+        complete: function(results) {
+          kohad = results.data;
+          kuvaKohad();
+        }
+      });
+    }
 
     function kuvaKohad() {
       var konteiner = document.getElementById('punktid');
       konteiner.innerHTML = '';
-      markerid = []; // Tühjendame mälus olevad markerid
+      
+      // Eemaldame vanad markerid
+      markerid.forEach(m => kaart.removeLayer(m));
+      markerid = [];
 
       kohad.forEach((koht, i) => {
         var lat = parseFloat(koht.lat || koht.Lat || koht["Laiuskraad"]);
@@ -70,14 +132,12 @@
         var kirjeldus = koht.Kirjeldus || koht.kirjeldus || "";
 
         if (!isNaN(lat) && !isNaN(lng)) {
-          // 1. Lisame markeri kaardile ja salvestame massiivi
           var marker = L.marker([lat, lng])
             .addTo(kaart)
             .bindPopup(`<b>${nimi}</b><br>${kirjeldus}`);
           
           markerid[i] = marker;
 
-          // 2. Lisame kaardikese külgribasse
           var div = document.createElement('div');
           div.className = 'punkt-kaart';
           div.innerHTML = `
@@ -86,10 +146,9 @@
             <div class="kaugus" id="kaugus-${i}">Kaugus: vali punkt kaardil</div>
           `;
 
-          // 3. KLÕPSAMISE FUNKTSIOON: Liigutab kaardi kohale ja avab popupi
           div.onclick = function() {
-            kaart.setView([lat, lng], 15); // Suumib ja tsentreerib kohale
-            marker.openPopup(); // Avab infoakna
+            kaart.setView([lat, lng], 15);
+            marker.openPopup();
           };
 
           konteiner.appendChild(div);
@@ -97,14 +156,65 @@
       });
     }
 
-    // Kaardil klõpsamine – kasutaja asukoha seadmine ja kauguse arvutamine
+    // KAARDIL KLÕPSAMINE: Uue koha sisestamise vorm
     kaart.on('click', function(e) {
-      var userLat = e.latlng.lat;
-      var userLng = e.latlng.lng;
+      var lat = e.latlng.lat.toFixed(6);
+      var lng = e.latlng.lng.toFixed(6);
 
       if (minutMarker) kaart.removeLayer(minutMarker);
-      minutMarker = L.marker([userLat, userLng]).addTo(kaart).bindPopup("Sinu valitud asukoht").openPopup();
 
+      // Loome pop-upi sees oleva vormi
+      var formHtml = `
+        <div class="form-popup">
+          <b>Lisa uus koht tabelisse:</b><br><br>
+          <input type="text" id="uus-nimi" placeholder="Nimi" required><br>
+          <textarea id="uus-kirjeldus" placeholder="Kirjeldus" rows="2"></textarea><br>
+          <small>Koordinaadid: ${lat}, ${lng}</small><br><br>
+          <button onclick="salvestaGoogleSheetsi(${lat}, ${lng})">💾 Salvesta Sheetsi</button>
+        </div>
+      `;
+
+      minutMarker = L.marker([lat, lng]).addTo(kaart).bindPopup(formHtml).openPopup();
+
+      // Arvutame kaugused juba olevatesse punktidesse
+      uuendaKaugused(lat, lng);
+    });
+
+    // SAADAME ANDMED TAUSTAL GOOGLE SHEETSI
+    function salvestaGoogleSheetsi(lat, lng) {
+      var nimi = document.getElementById('uus-nimi').value;
+      var kirjeldus = document.getElementById('uus-kirjeldus').value;
+
+      if (!nimi) {
+        alert("Palun sisesta nimi!");
+        return;
+      }
+
+      // Koostame Google Formsi jaoks andmed
+      var formData = new FormData();
+      formData.append(ENTRY_NIMI, nimi);
+      formData.append(ENTRY_KIRJELDUS, kirjeldus);
+      formData.append(ENTRY_LAT, lat);
+      formData.append(ENTRY_LNG, lng);
+
+      // Saadame päringu otse Google Formsile (no-cors režiimis, et vältida brauseri blokeeringut)
+      fetch(FORM_ACTION_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: formData
+      }).then(() => {
+        alert("Koht salvestatud Google Sheetsi! Uuendan kaarti...");
+        if (minutMarker) kaart.removeLayer(minutMarker);
+        
+        // Ootame 1.5 sekundit, et Google Sheets jõuaks CSV uuendada, ja laeme andmed uuesti
+        setTimeout(laeAndmed, 1500);
+      }).catch(err => {
+        console.error("Viga salvestamisel:", err);
+        alert("Salvestamisel tekkis viga!");
+      });
+    }
+
+    function uuendaKaugused(userLat, userLng) {
       kohad.forEach((koht, i) => {
         var lat = parseFloat(koht.lat || koht.Lat || koht["Laiuskraad"]);
         var lng = parseFloat(koht.lng || koht.Lng || koht["Pikkuskraad"]);
@@ -119,7 +229,7 @@
           }
         }
       });
-    });
+    }
   </script>
 
 </body>
