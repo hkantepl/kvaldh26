@@ -2,7 +2,7 @@
 <html lang="et">
 <head>
   <meta charset="UTF-8">
-  <title>Kaardirakendus - Otse Sheetsi salvestamine</title>
+  <title>Kaardirakendus - Google Forms & Sheets</title>
   
   <!-- Leaflet (Kaart) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
@@ -32,16 +32,29 @@
     
     .kaugus { color: #e67e22; font-weight: bold; font-size: 13px; }
     
+    .nupp { 
+      display: block; 
+      text-align: center; 
+      background: #28a745; 
+      color: white; 
+      padding: 10px; 
+      text-decoration: none; 
+      border-radius: 5px; 
+      margin-bottom: 15px; 
+      font-weight: bold; 
+    }
+    .nupp:hover { background: #218838; }
+
     .juhend {
       background: #eef5ff;
       border-left: 4px solid #007bff;
-      padding: 10px;
+      padding: 8px;
       margin-bottom: 15px;
-      font-size: 13px;
+      font-size: 12px;
       line-height: 1.4;
     }
 
-    /* Popup vormi stiilid */
+    /* Popup vormi stiilid kaardil */
     .form-popup input, .form-popup textarea {
       width: 100%;
       margin-bottom: 8px;
@@ -67,8 +80,13 @@
   <div id="sidebar">
     <h2>Kaardirakendus</h2>
     
+    <!-- ROHELINE GOOGLE FORMSI NUPP -->
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSfcCPUxEEguCzRSUvUKpva_Ft07tGlyLwrKH8K6mVowyi8zJg/viewform" target="_blank" class="nupp">
+      Lisa uus koht
+    </a>
+
     <div class="juhend">
-      💡 <b>Uue koha lisamine:</b> Klõpsa kaardil mistahes kohas, et salvestada uus koht.
+      💡 <b>Kaardil klõpsates:</b> Saad valida oma asukoha kauguste arvutamiseks või salvestada uue koha otse Sheetsi.
     </div>
 
     <h3>Salvestatud kohad</h3>
@@ -79,14 +97,12 @@
   <div id="kaart"></div>
 
   <script>
-    // 1. PANE SIIA OMA GOOGLE SHEETSI AVALDATUD CSV LINK
+    // 1. GOOGLE SHEETSI AVALDATUD CSV LINK
     var GOOGLE_SHEETS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSXsqjzXSdoV7sGkuBAPt2exqCMvin_6ciNAplHPUnD6SFze2pao6ZL-h6fialROeL0fA4KkuMEOnTN/pub?output=csv';
 
-    // 2. GOOGLE FORMSI SALVESTAMISE SEADISTUS
-    // NB! Link peab lõppema /formResponse (mitte /viewform)
+    // 2. GOOGLE FORMSI TAUSTASALVESTUSE SEADISTUS
     var FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfcCPUxEEguCzRSUvUKpva_Ft07tGlyLwrKH8K6mVowyi8zJg/formResponse';
     
-    // Asenda need oma Formsi õigete entry.XXXXXXXX ID-dega
     var ENTRY_NIMI = 'entry.228036019';
     var ENTRY_KIRJELDUS = 'entry.639091632';
     var ENTRY_LAT = 'entry.603387186';
@@ -103,7 +119,6 @@
     var markerid = [];
     var minutMarker = null;
 
-    // Laeme andmed Google Sheetsist
     laeAndmed();
 
     function laeAndmed() {
@@ -121,7 +136,6 @@
       var konteiner = document.getElementById('punktid');
       konteiner.innerHTML = '';
       
-      // Eemaldame vanad markerid
       markerid.forEach(m => kaart.removeLayer(m));
       markerid = [];
 
@@ -156,31 +170,27 @@
       });
     }
 
-    // KAARDIL KLÕPSAMINE: Uue koha sisestamise vorm
     kaart.on('click', function(e) {
       var lat = e.latlng.lat.toFixed(6);
       var lng = e.latlng.lng.toFixed(6);
 
       if (minutMarker) kaart.removeLayer(minutMarker);
 
-      // Loome pop-upi sees oleva vormi
       var formHtml = `
         <div class="form-popup">
-          <b>Lisa uus koht tabelisse:</b><br><br>
+          <b>Lisa koht otse Sheetsi:</b><br><br>
           <input type="text" id="uus-nimi" placeholder="Nimi" required><br>
           <textarea id="uus-kirjeldus" placeholder="Kirjeldus" rows="2"></textarea><br>
           <small>Koordinaadid: ${lat}, ${lng}</small><br><br>
-          <button onclick="salvestaGoogleSheetsi(${lat}, ${lng})">💾 Salvesta Sheetsi</button>
+          <button onclick="salvestaGoogleSheetsi(${lat}, ${lng})">💾 Salvesta</button>
         </div>
       `;
 
       minutMarker = L.marker([lat, lng]).addTo(kaart).bindPopup(formHtml).openPopup();
 
-      // Arvutame kaugused juba olevatesse punktidesse
       uuendaKaugused(lat, lng);
     });
 
-    // SAADAME ANDMED TAUSTAL GOOGLE SHEETSI
     function salvestaGoogleSheetsi(lat, lng) {
       var nimi = document.getElementById('uus-nimi').value;
       var kirjeldus = document.getElementById('uus-kirjeldus').value;
@@ -190,27 +200,22 @@
         return;
       }
 
-      // Koostame Google Formsi jaoks andmed
       var formData = new FormData();
       formData.append(ENTRY_NIMI, nimi);
       formData.append(ENTRY_KIRJELDUS, kirjeldus);
       formData.append(ENTRY_LAT, lat);
       formData.append(ENTRY_LNG, lng);
 
-      // Saadame päringu otse Google Formsile (no-cors režiimis, et vältida brauseri blokeeringut)
       fetch(FORM_ACTION_URL, {
         method: 'POST',
         mode: 'no-cors',
         body: formData
       }).then(() => {
-        alert("Koht salvestatud Google Sheetsi! Uuendan kaarti...");
+        alert("Koht salvestatud Google Sheetsi!");
         if (minutMarker) kaart.removeLayer(minutMarker);
-        
-        // Ootame 1.5 sekundit, et Google Sheets jõuaks CSV uuendada, ja laeme andmed uuesti
         setTimeout(laeAndmed, 1500);
       }).catch(err => {
-        console.error("Viga salvestamisel:", err);
-        alert("Salvestamisel tekkis viga!");
+        console.error("Viga:", err);
       });
     }
 
