@@ -25,9 +25,9 @@
     <h2>Kaardirakendus</h2>
     
     
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSfcCPUxEEguCzRSUvUKpva_Ft07tGlyLwrKH8K6mVowyi8zJg/viewform?usp=header" class="nupp">➕ Lisa uus koht (Google Form)</a>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSfcCPUxEEguCzRSUvUKpva_Ft07tGlyLwrKH8K6mVowyi8zJg/viewform?usp=header" class="nupp">Uue asukoha lisamine</a>
 
-    <p><i>Klõpsa kaardil mistahes kohas, et arvutada kaugus igasse punkti!</i></p>
+    <p><i>Asukohtade loend</i></p>
     <hr>
     <div id="punktid">Laen andmeid Google Sheetsist...</div>
   </div>
@@ -38,19 +38,17 @@
     
     var GOOGLE_SHEETS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSXsqjzXSdoV7sGkuBAPt2exqCMvin_6ciNAplHPUnD6SFze2pao6ZL-h6fialROeL0fA4KkuMEOnTN/pub?output=csv';
 
-    // kaart
     var kaart = L.map('kaart').setView([59.437, 24.745], 13);
 
-    // Lisame Maa-ameti kaardikihi
     L.tileLayer('https://tiles.maaamet.ee/tm/tms/1.0.0/hybriid@GMC/{z}/{x}/{y}.png&ASUTUS=TLU&ERIALA=DIGIHUMANITAARIA', {
       attribution: 'Maa-amet',
       tms: true
     }).addTo(kaart);
 
     var kohad = [];
+    var markerid = []; // Hoolitseb markerite salvestamise eest
     var minutMarker = null;
 
-    //anmdete laadimine
     Papa.parse(GOOGLE_SHEETS_CSV, {
       download: true,
       header: true,
@@ -63,22 +61,23 @@
     function kuvaKohad() {
       var konteiner = document.getElementById('punktid');
       konteiner.innerHTML = '';
+      markerid = []; // Tühjendame mälus olevad markerid
 
       kohad.forEach((koht, i) => {
-        // Loeme veerud (Google Sheetsi tulpade nimed)
         var lat = parseFloat(koht.lat || koht.Lat || koht["Laiuskraad"]);
         var lng = parseFloat(koht.lng || koht.Lng || koht["Pikkuskraad"]);
         var nimi = koht.Nimi || koht.nimi || "Nimetu koht";
         var kirjeldus = koht.Kirjeldus || koht.kirjeldus || "";
 
-        // Kontrollime, et koordinaadid oleksid olemas
         if (!isNaN(lat) && !isNaN(lng)) {
-          // Lisame markeri kaardile
-          L.marker([lat, lng])
+          // 1. Lisame markeri kaardile ja salvestame massiivi
+          var marker = L.marker([lat, lng])
             .addTo(kaart)
             .bindPopup(`<b>${nimi}</b><br>${kirjeldus}`);
+          
+          markerid[i] = marker;
 
-          // Lisame punkti külgribasse
+          // 2. Lisame kaardikese külgribasse
           var div = document.createElement('div');
           div.className = 'punkt-kaart';
           div.innerHTML = `
@@ -86,6 +85,13 @@
             <p style="margin: 5px 0; font-size: 13px;">${kirjeldus}</p>
             <div class="kaugus" id="kaugus-${i}">Kaugus: vali punkt kaardil</div>
           `;
+
+          // 3. KLÕPSAMISE FUNKTSIOON: Liigutab kaardi kohale ja avab popupi
+          div.onclick = function() {
+            kaart.setView([lat, lng], 15); // Suumib ja tsentreerib kohale
+            marker.openPopup(); // Avab infoakna
+          };
+
           konteiner.appendChild(div);
         }
       });
@@ -96,17 +102,14 @@
       var userLat = e.latlng.lat;
       var userLng = e.latlng.lng;
 
-      // Märgime kasutaja valitud punkti
       if (minutMarker) kaart.removeLayer(minutMarker);
       minutMarker = L.marker([userLat, userLng]).addTo(kaart).bindPopup("Sinu valitud asukoht").openPopup();
 
-      // Arvutame kauguse igasse Google Sheetsi punkti
       kohad.forEach((koht, i) => {
         var lat = parseFloat(koht.lat || koht.Lat || koht["Laiuskraad"]);
         var lng = parseFloat(koht.lng || koht.Lng || koht["Pikkuskraad"]);
 
         if (!isNaN(lat) && !isNaN(lng)) {
-          // Leafleti sisseehitatud funktsioon vahemaa arvutamiseks
           var meetrit = kaart.distance([userLat, userLng], [lat, lng]);
           var km = (meetrit / 1000).toFixed(2);
           
