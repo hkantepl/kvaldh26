@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Google Sheets Kaart</title>
   
-  <!-- Leaflet (Kaart) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
 
@@ -23,7 +22,7 @@
 <body>
 
   <div id="sidebar">
-    <h2>📍 Minu Kaardirakendus</h2>
+    <h2>Kaardirakendus</h2>
     
     
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSfcCPUxEEguCzRSUvUKpva_Ft07tGlyLwrKH8K6mVowyi8zJg/viewform?usp=header" class="nupp">➕ Lisa uus koht (Google Form)</a>
@@ -36,10 +35,10 @@
   <div id="kaart"></div>
 
   <script>
-    // 2. PANE SIIA OMA GOOGLE SHEETSI AVALDATUD CSV LINK
+    
     var GOOGLE_SHEETS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSXsqjzXSdoV7sGkuBAPt2exqCMvin_6ciNAplHPUnD6SFze2pao6ZL-h6fialROeL0fA4KkuMEOnTN/pub?output=csv';
 
-    // Algatame kaardi (Tallinn)
+    // kaart
     var kaart = L.map('kaart').setView([59.437, 24.745], 13);
 
     // Lisame Maa-ameti kaardikihi
@@ -51,7 +50,7 @@
     var kohad = [];
     var minutMarker = null;
 
-    // Laeme andmed otse Google Sheetsist CSV formaadis
+    //anmdete laadimine
     Papa.parse(GOOGLE_SHEETS_CSV, {
       download: true,
       header: true,
