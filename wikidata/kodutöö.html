@@ -1,61 +1,127 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-     <script>
-        function kysi(){ 
-           let lause=`
-             SELECT ?item ?itemLabel
-              WHERE
-              {
-                ?item wdt:P27 wd:Q33. 
-                ?item wdt:P106 wd:Q177220.
-              
-                SERVICE wikibase:label {
-                  bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
-                } 
-              }
-              LIMIT 10
-           `;
-           let aadress="https://query.wikidata.org/sparql?format=json&query="+encodeURI(lause);      
-           fetch(aadress).then(d => d.json()).then(kuva);
+<head>
+    <meta charset="UTF-8">
+    <title>Wikidata päringu näide</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .controls { margin-bottom: 20px; }
+        label { margin-right: 10px; }
+        select, input, button { padding: 5px; margin-right: 10px; }
+        ul { background: #f4f4f4; padding: 20px; border-radius: 5px; }
+    </style>
+    <script>
+        // OTSEPÄRING 1: Inimesed teatud kodakondsuse ja ameti järgi
+        function kysiInimesed() {
+            let riik = document.getElementById("riik").value;
+            let amet = document.getElementById("amet").value;
+            let limiit = document.getElementById("limiit").value;
+
+            // P27 = kodakondsus, P106 = amet
+            let lause = `
+                SELECT ?item ?itemLabel WHERE {
+                    ?item wdt:P27 wd:${riik}.
+                    ?item wdt:P106 wd:${amet}.
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],et,en". }
+                }
+                LIMIT ${limiit}
+            `;
+
+            teostaParing(lause, "Tulemus: Isikud vali vastavalt parameetritele");
         }
 
-        function kysi2(){
-           let lause=`
-             SELECT ?item ?itemLabel
-              WHERE
-              {
-                ?item wdt:P27 wd:Q191. 
-                ?item wdt:P106 wd:Q177220.
-              
-                SERVICE wikibase:label {
-                  bd:serviceParam wikibase:language "[AUTO_LANGUAGE],mul,en".
-                } 
-              }
-              LIMIT 10
-           `;
-           let aadress="https://query.wikidata.org/sparql?format=json&query="+encodeURI(lause);      
-           fetch(aadress).then(d => d.json()).then(kuva);
+        // OTSEPÄRING 2: Eesti heliloojate teosed/raamatud või muu spetsiifiline päring
+        // Näide: Eesti kirjanike raamatud (P50 = autor)
+        function kysiRaamatud() {
+            let limiit = document.getElementById("limiit").value;
+
+            // Otsime objekte, mis on raamatud (Q571) ja mille autoril (P50) on Eesti kodakondsus (P27 -> Q191)
+            let lause = `
+                SELECT ?item ?itemLabel ?autorLabel WHERE {
+                    ?item wdt:P31 wd:Q571.          # On raamat (instance of book)
+                    ?item wdt:P50 ?autor.          # Autor
+                    ?autor wdt:P27 wd:Q191.        # Autori kodakondsus on Eesti
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],et,en". }
+                }
+                LIMIT ${limiit}
+            `;
+
+            teostaParing(lause, "Tulemus: Eesti autorite raamatud");
         }
 
-
-       
-        function kuva(d){
-           console.log(d);
-           //vastus.textContent="";
-           for(let rida of d["results"]["bindings"]){
-              console.log(rida["itemLabel"]["value"]);
-              //vastus.textContent+=" "+rida["itemLabel"]["value"];
-              let lause=document.createElement("li");
-              lause.textContent=rida["itemLabel"]["value"];
-              vastus.appendChild(lause);
-           }
+        // Ühine funktsioon päringu saatmiseks ja tulemuste kuvamiseks veebilehel
+        function teostaParing(lause, kirjeldus) {
+            let aadress = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(lause);
+            
+            fetch(aadress)
+                .then(response => response.json())
+                .then(data => kuvaTulemused(data, kirjeldus))
+                .catch(error => console.error("Viga päringul:", error));
         }
-     </script>
-  </head>
-  <body>
-     <input type="button" value="otsi" onclick="kysi()" />
-     <input type="button" value="otsi 2" onclick="kysi2()" />
-     <ul id="vastus"></ul>
-  </body>
+
+        function kuvaTulemused(d, kirjeldus) {
+            let vastus = document.getElementById("vastus");
+            vastus.innerHTML = ""; // Tühjendame eelmised tulemused
+
+            console.log(d);
+            
+            let pealkiri = document.createElement("h3");
+            pealkiri.textContent = kirjeldus;
+            vastus.appendChild(pealkiri);
+
+            let nimekiri = document.createElement("ul");
+
+            for (let rida of d["results"]["bindings"]) {
+                let li = document.createElement("li");
+                let nimi = rida["itemLabel"]["value"];
+                let url = rida["item"]["value"];
+                
+                // Kuvame nime ja lingi Wikidata lehele
+                li.innerHTML = `<a href="${url}" target="_blank">${nimi}</a>`;
+                
+                if (rida["autorLabel"]) {
+                    li.innerHTML += ` (Autor: ${rida["autorLabel"]["value"]})`;
+                }
+
+                nimekiri.appendChild(li);
+            }
+            
+            vastus.appendChild(nimekiri);
+        }
+    </script>
+</head>
+<body>
+
+    <h2>Wikidata otsing</h2>
+
+    <div class="controls">
+        <!-- Otsingu parameetrite muutmine -->
+        <label for="riik">Riik:</label>
+        <select id="riik">
+            <option value="Q191">Eesti</option>
+            <option value="Q33">Soome</option>
+            <option value="Q183">Saksamaa</option>
+        </select>
+
+        <label for="amet">Amet:</label>
+        <select id="amet">
+            <option value="Q177220">Laulja</option>
+            <option value="Q36834">Helilooja</option>
+            <option value="Q1028181">Maalikunstnik</option>
+        </select>
+
+        <label for="limiit">Tulemuste arv:</label>
+        <input type="number" id="limiit" value="10" min="1" max="50">
+
+        <br><br>
+
+        <!-- Nupud päringute käivitamiseks -->
+        <button onclick="kysiInimesed()">Otsi isikuid parameetrite järgi</button>
+        <button onclick="kysiRaamatud()">Otsi Eesti autorite raamatuid</button>
+    </div>
+
+    <!-- Tulemuste kuvamise koht veebilehel -->
+    <div id="vastus"></div>
+
+</body>
 </html>
