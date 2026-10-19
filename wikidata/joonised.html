@@ -39,15 +39,15 @@
 
     <!-- 1. KAART -->
     <h2>1. Eesti tuletornide asukohakaart</h2>
-    <p>Kaardil on kujutatud Eesti tuletornid nende geograafiliste koordinaatide alusel. Täppidele vajutades avaneb tuletorni nimi ja pilt.</p>
+    <p>Kaardil on kujutatud Eesti tuletornid nende geograafiliste koordinaatide alusel.</p>
     <iframe src="https://query.wikidata.org/embed.html#%23defaultView%3AMap%0ASELECT%20%3Ftuletorn%20%3FtuletornLabel%20%3Fkoordinaadid%20%3Fpilt%20WHERE%20%7B%0A%20%20%3Ftuletorn%20wdt%3AP31%20wd%3AQ39715.%20%20%20%20%20%23%20On%20tuletorn%0A%20%20%3Ftuletorn%20wdt%3AP17%20wd%3AQ191.%20%20%20%20%20%20%23%20Asub%20Eestis%0A%20%20%3Ftuletorn%20wdt%3AP625%20%3Fkoordinaadid.%20%23%20Geograafilised%20koordinaadid%0A%20%20OPTIONAL%20%7B%20%3Ftuletorn%20wdt%3AP18%20%3Fpilt.%20%7D%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22%5BAUTO_LANGUAGE%5D%2Cet%2Cen%22.%20%7D%0A%7D"></iframe>
 
     <!-- 2. AJAJOON -->
     <h2>2. Tuletornide ehitamise ajajoon</h2>
-    <p>Ajajoon näitab Eesti tuletornide valmimisaastaid läbi ajaloo. Skaalal saab liikuda ja hiirega sisse-välja suumida.</p>
+    <p>Ajajoon näitab Eesti tuletornide valmimisaastaid läbi ajaloo.</p>
     <iframe src="https://query.wikidata.org/embed.html#%23defaultView%3ATimeline%0ASELECT%20%3Ftuletorn%20%3FtuletornLabel%20%3Fehitusaeg%20%3Fpilt%20WHERE%20%7B%0A%20%20%3Ftuletorn%20wdt%3AP31%20wd%3AQ39715.%20%20%20%20%20%23%20On%20tuletorn%0A%20%20%3Ftuletorn%20wdt%3AP17%20wd%3AQ191.%20%20%20%20%20%20%23%20Asub%20Eestis%0A%20%20%3Ftuletorn%20wdt%3AP571%20%3Fehitusaeg.%20%20%20%20%23%20Asutamise%2Fehitamise%20aeg%0A%20%20OPTIONAL%20%7B%20%3Ftuletorn%20wdt%3AP18%20%3Fpilt.%20%7D%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22%5BAUTO_LANGUAGE%5D%2Cet%2Cen%22.%20%7D%0A%7D"></iframe>
 
     <!-- 3. VÕRGUSTIK -->
-    <h2>3. Tuletornide ja haldusüksuste võrgustik (Graaf)</h2>
-    <p>Võrgustik näitab tuletornide seoseid omavalitsuste ja haldusüksustega, kus need asuvad. Mullikestest saab hiirega kinni haarata ja neid liigutada.</p>
-    <iframe src="
+    <h2>3. Tuletornide ja haldusüksuste võrgustik</h2>
+    <p>Võrgustik näitab tuletornide seoseid omavalitsuste ja haldusüksustega, kus need asuvad.</p>
+    <iframe src="https://query.wikidata.org/embed.html#%23defaultView%3AGraph%0ASELECT%20%3Ftuletorn%20%3FtuletornLabel%20%3Fasukoht%20%3FasukohtLabel%20WHERE%20%7B%0A%20%20%3Ftuletorn%20wdt%3AP31%20wd%3AQ39715%2B%20%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP17%20wd%3AQ191%20%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP131%20%3Fasukoht%20.%0A%20%20SERVICE%20wikibase%3Alabel%20%7B%20bd%3AserviceParam%20wikibase%3Alanguage%20%22et%2Cen%22.%20%7D%0A%7D%0ALIMIT%2020"></iframe>
