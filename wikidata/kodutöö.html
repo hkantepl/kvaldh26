@@ -22,7 +22,7 @@
                 SELECT ?item ?itemLabel WHERE {
                     ?item wdt:P27 wd:${riik}.
                     ?item wdt:P106 wd:${amet}.
-                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],et,en". }
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],et,en,de". }
                 }
                 LIMIT ${limiit}
             `;
