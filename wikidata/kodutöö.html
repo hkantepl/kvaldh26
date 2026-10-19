@@ -41,6 +41,7 @@
                     ?item wdt:P31 wd:Q571.          # On raamat (instance of book)
                     ?item wdt:P50 ?autor.          # Autor
                     ?autor wdt:P27 wd:Q191.        # Autori kodakondsus on Eesti
+                    ?autor wdt:P106 wd:Q36180.     # Autori amet (P106) on kirjanik (Q36180)
                     SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],et,en". }
                 }
                 LIMIT ${limiit}
