@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naiste nimed ringis (Reaalajas)</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #ec4899;
+            --primary-hover: #db2777;
+            --primary-light: #fdf2f8;
+            --primary-border: #fbcfe8;
+            --accent: #8b5cf6;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 30px 15px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 32px 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+            background: linear-gradient(135deg, #db2777, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .status-bar {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--success-light);
+            border: 1px solid #d1fae5;
+            border-radius: 12px;
+            padding: 10px 18px;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            color: #065f46;
+            box-sizing: border-box;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .pulse-dot {
+            width: 9px;
+            height: 9px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .btn-refresh {
+            background-color: #ffffff;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-refresh:hover {
+            background-color: #d1fae5;
+            transform: translateY(-1px);
+        }
+
+        /* Ringikujuline lava */
+        .circle-stage {
+            position: relative;
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 1 / 1;
+            margin: 10px 0 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Ringi orbiidi joon */
+        .circle-orbit {
+            position: absolute;
+            width: 76%;
+            height: 76%;
+            border-radius: 50%;
+            border: 2px dashed #fbcfe8;
+            pointer-events: none;
+            animation: spinSlow 90s linear infinite;
+        }
+
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Keskne sõlm */
+        .center-hub {
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 100%);
+            border: 2px solid var(--primary-border);
+            box-shadow: 0 8px 20px rgba(236, 72, 153, 0.12);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 5;
+            padding: 16px;
+            box-sizing: border-box;
+            pointer-events: none;
+        }
+
+        .hub-icon {
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+        }
+
+        .hub-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .hub-count {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        /* Üksik nime märk ringil */
+        .name-badge {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            border: 1.5px solid var(--primary-border);
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: default;
+            white-space: nowrap;
+            z-index: 10;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .name-badge:hover {
+            transform: translate(-50%, -50%) scale(1.15);
+            background-color: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
+            z-index: 20;
+        }
+
+        .name-badge .badge-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .name-badge:hover .badge-num {
+            background-color: #ffffff;
+            color: var(--primary);
+        }
+
+        .loading-text, .error-text {
+            position: absolute;
+            z-index: 10;
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            padding: 20px;
+        }
+
+        .error-text {
+            color: #ef4444;
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            border-radius: 12px;
+        }
+
+        footer {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Naiste nimed ringis</h1>
+            <p class="subtitle" id="subtitle-info">Laen andmeid Google Sheetsist...</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <span class="pulse-dot"></span>
+                <span id="sync-status">Uuendatakse iga 30s järel</span>
+            </div>
+            <button class="btn-refresh" id="btn-refresh" onclick="laeNimed()">Värskenda kohe</button>
+        </div>
+
+        <div class="circle-stage" id="circle-stage">
+            <div class="circle-orbit"></div>
+            
+            <div class="center-hub">
+                <div class="hub-icon">💃</div>
+                <div class="hub-title">Tantsuring</div>
+                <div class="hub-count" id="hub-count">Laen...</div>
+            </div>
+
+            <div id="names-container">
+                <div class="loading-text">Laen nimesid tabelist...</div>
+            </div>
+        </div>
+
+        <footer>
+            <div id="last-updated">Viimane kontroll: ootel</div>
+            <div>
+                Allikas: <a href="https://docs.google.com/spreadsheets/d/117-AtcYzjRtjS5TTrLmVJte-19bRW4KpgvXFuyTmyh8/edit?gid=1862818705#gid=1862818705" target="_blank" rel="noopener">Google Sheets (naisenimed)</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/117-AtcYzjRtjS5TTrLmVJte-19bRW4KpgvXFuyTmyh8/export?format=csv&gid=1862818705";
+        const INTERVAL_SEKUNDID = 30;
+        let jargmineUuendusAeg = Date.now() + INTERVAL_SEKUNDID * 1000;
+
+        async function laeNimed() {
+            const namesContainer = document.getElementById("names-container");
+            const subtitleInfo = document.getElementById("subtitle-info");
+            const hubCount = document.getElementById("hub-count");
+            const lastUpdated = document.getElementById("last-updated");
+            const btnRefresh = document.getElementById("btn-refresh");
+
+            btnRefresh.disabled = true;
+            btnRefresh.textContent = "Laen...";
+
+            try {
+                const cacheBusterUrl = `${CSV_URL}&_t=${Date.now()}`;
+                const vastus = await fetch(cacheBusterUrl);
+
+                if (!vastus.ok) {
+                    throw new Error(`Vastus serverilt: ${vastus.status}`);
+                }
+
+                const csvTekst = await vastus.text();
+
+                const nimed = csvTekst.split(/\r?\n/)
+                    .map(rida => {
+                        let puhas = rida.trim();
+                        if (puhas.startsWith('"') && puhas.endsWith('"')) {
+                            puhas = puhas.substring(1, puhas.length - 1);
+                        }
+                        return puhas.split(",")[0].trim();
+                    })
+                    .filter(nimi => nimi.length > 0);
+
+                if (nimed.length === 0) {
+                    namesContainer.innerHTML = '<div class="loading-text">Tabelis ei leitud nimesid.</div>';
+                    hubCount.textContent = "0 nime";
+                    subtitleInfo.textContent = "Tabel on tühi";
+                } else {
+                    paigutaNimedRingi(nimed);
+                    hubCount.textContent = `${nimed.length} naist`;
+                    subtitleInfo.textContent = `Ringis on kokku ${nimed.length} naisenime`;
+                }
+
+                const nuud = new Date();
+                lastUpdated.textContent = `Viimati uuendatud: kell ${nuud.toLocaleTimeString("et-EE")}`;
+                jargmineUuendusAeg = Date.now() + INTERVAL_SEKUNDID * 1000;
+
+            } catch (viga) {
+                console.error("Viga andmete laadimisel:", viga);
+                if (!document.querySelector(".name-badge")) {
+                    namesContainer.innerHTML = `<div class="error-text">Laadimine ebaõnnestus: ${viga.message}</div>`;
+                }
+                lastUpdated.textContent = `Viimane katse ebaõnnestus kell ${new Date().toLocaleTimeString("et-EE")}`;
+            } finally {
+                btnRefresh.disabled = false;
+                btnRefresh.textContent = "Värskenda kohe";
+            }
+        }
+
+        function paigutaNimedRingi(nimed) {
+            const namesContainer = document.getElementById("names-container");
+            const kogus = nimed.length;
+            const raadiusProtsent = 38;
+
+            let html = "";
+            for (let i = 0; i < kogus; i++) {
+                const nurk = (2 * Math.PI / kogus) * i - (Math.PI / 2);
+                const x = 50 + raadiusProtsent * Math.cos(nurk);
+                const y = 50 + raadiusProtsent * Math.sin(nurk);
+
+                html += `
+                    <div class="name-badge" style="left: ${x.toFixed(2)}%; top: ${y.toFixed(2)}%;">
+                        <span class="badge-num">${i + 1}</span>
+                        <span>${nimed[i]}</span>
+                    </div>
+                `;
+            }
+
+            namesContainer.innerHTML = html;
+        }
+
+        function uuendaTaimerit() {
+            const sekundeidJaanud = Math.max(0, Math.round((jargmineUuendusAeg - Date.now()) / 1000));
+            document.getElementById("sync-status").textContent = `Värskendub automaatselt: ${sekundeidJaanud}s`;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            laeNimed();
+            setInterval(laeNimed, INTERVAL_SEKUNDID * 1000);
+            setInterval(uuendaTaimerit, 1000);
+        });
+    </script>
+</body>
+</html>
